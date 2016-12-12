@@ -1,4 +1,4 @@
-VERSION = "1.0.1"
+VERSION = "1.1.2"
 
 treeView = nil
 cwd = "."
@@ -12,15 +12,14 @@ function OpenTree()
 
     treeView = CurView()
     RefreshTree()
-    LoseFocus(origNum)
+    SetFocus(origNum)
 end
 
-function LoseFocus(num)
+function SetFocus(num)
     tabs[curTab+1].CurView = num + 1
 end
 
 function RefreshTree()
-    --if treeView == nil then OpenTree() end
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
     treeView.Buf.Settings["softwrap"] = false
@@ -42,11 +41,12 @@ function preInsertNewline(view)
             local filehandle = io.open(filename, "r")
             if not filehandle then
                 TermMessage("Can't open file:", filename)
+                return false
             end
             local filecontent = filehandle:read("*all")
             CurView():VSplitIndex(NewBuffer(filecontent, filename), 0)
             tabs[curTab+1]:Resize()
-            LoseFocus(CurView().Num)
+            SetFocus(CurView().Num - 1) -- set focus on opened tab
         end
         return false
     end
@@ -73,7 +73,7 @@ end
 
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen
-    local pfile = popen('ls -a "'..directory..'"')
+    local pfile = popen('ls -aF "'..directory..'"')
     for filename in pfile:lines() do
         i = i + 1
         t[i] = filename
