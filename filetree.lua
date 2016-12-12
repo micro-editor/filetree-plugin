@@ -1,4 +1,4 @@
-VERSION = "1.1.2"
+VERSION = "1.1.3"
 
 treeView = nil
 cwd = "."
@@ -51,6 +51,20 @@ function preInsertNewline(view)
         return false
     end
     return true
+end
+
+-- don't use build-in view.Cursor:SelectLine() as it will copy to clipboard
+function SelectLine(v)
+    local y = v.Cursor.Loc.Y
+    v.Cursor.CurSelection[1] = Loc(0, y)
+    v.Cursor.CurSelection[2] = Loc(30, y) -- TODO: 30 => v.Width
+end
+
+function onCursorDown(view)
+    if view == treeView then SelectLine(view) end
+end
+function onCursorUp(view)
+    if view == treeView then SelectLine(view) end
 end
 
 --[[ allows for deleting files
