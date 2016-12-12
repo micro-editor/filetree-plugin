@@ -1,3 +1,15 @@
 # Filetree Plugin
 
-This is still a work in progress...
+A simple plugin that allows for easy navigation of a file tree.
+
+Place this folder in `~/.config/micro/plugins/` and restart micro.
+
+Now it will be possible to open a navigation panel by running the command `tree` (ctrl + e).
+
+## Example
+![filetree cli](https://i.imgur.com/gO5CnT4.png "Filetree CLI")
+
+## Known Issues
+ * Does not work on Windows
+ * Opening of (huge) files will be slow
+ 
