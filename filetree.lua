@@ -1,4 +1,4 @@
-VERSION = "1.1.3"
+VERSION = "1.1.4"
 
 treeView = nil
 cwd = "."
@@ -24,6 +24,7 @@ function RefreshTree()
     treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
     treeView.Buf.Settings["softwrap"] = false
     treeView.Buf.Settings["autosave"] = false
+    treeView.Buf.Settings["statusline"] = false
     treeView.Buf.IsModified = false
 end
 
