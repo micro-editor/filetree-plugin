@@ -1,4 +1,4 @@
-VERSION = "1.2.1"
+VERSION = "1.2.2"
 
 treeView = nil
 cwd = "."
@@ -18,10 +18,6 @@ function OpenTree()
     
     tabs[curTab+1]:Resize()
     RefreshTree()
-end
-
-function SetFocus(num)
-    tabs[curTab+1].CurView = num
 end
 
 function RefreshTree()
@@ -70,12 +66,17 @@ function SelectLine(v)
     v.Cursor.CurSelection[2] = Loc(v.Width, y)
 end
 
-function onCursorDown(view)
-    if view == treeView then SelectLine(view) end
-end
-function onCursorUp(view)
-    if view == treeView then SelectLine(view) end
-end
+-- disallow selecting topmost line in treeview:
+function preCursorUp(view) 
+    if view == treeView then
+        if view.Cursor.Loc.Y == 1 then
+            return false
+end end end
+
+-- 'beautiful' file selection:
+function onCursorDown(view) if view == treeView then SelectLine(view) end end
+function onCursorUp(view)   if view == treeView then SelectLine(view) end end
+
 
 --[[ allows for deleting files
 function preDelete(view)
@@ -96,25 +97,18 @@ function preQuit(view)
 end
 
 function scandir(directory)
-    local i, t, popen = 0, {}, io.popen
+    local i, t, popen = 3, {}, io.popen
     local pfile
+    t[1] = cwd
+    t[2] = ".."
     if OS == "windows" then
         pfile = popen('dir /a /b "'..directory..'"')
-        t[1] = ".." -- add ".." not shown in dir output
-        i = 2
-        for filename in pfile:lines() do
-            t[i] = filename
-            i = i + 1
-        end
     else
-        pfile = popen('ls -aF "'..directory..'"')
-        for filename in pfile:lines() do
-            if i > 0 then
-                -- skip "." dir, (but keep "..")
-                t[i] = filename
-            end
-            i = i + 1
-        end
+        pfile = popen('ls -AF "'..directory..'"')
+    end
+    for filename in pfile:lines() do
+        t[i] = filename
+        i = i + 1
     end
     pfile:close()
     return t
