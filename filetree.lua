@@ -1,26 +1,24 @@
-VERSION = "1.2.2"
+VERSION = "1.2.3"
 
 treeView = nil
-cwd = "."
-if OS == "windows" then
-    cwd = "./" -- for some reason this works, but "C:" or "%CD%" doesn't
-end
+cwd = DirectoryName(".")
+driveLetter = "C:\\"
 
 function OpenTree()
     CurView():VSplitIndex(NewBuffer("", ""), 0)
     treeView = CurView()
-    treeView.Width = 20
+    treeView.Width = 30
     treeView.LockWidth = true
-    treeView.Buf.Settings["ruler"] = false
-    -- treeView.Buf.Settings["softwrap"] = false
-    treeView.Buf.Settings["autosave"] = false
-    treeView.Buf.Settings["statusline"] = false
-    
+    SetLocalOption("ruler", "false", treeView)
+    SetLocalOption("softwrap", "true", treeView)
+    SetLocalOption("autosave", "false", treeView)
+    SetLocalOption("statusline", "false", treeView)    
     tabs[curTab+1]:Resize()
     RefreshTree()
 end
 
 function RefreshTree()
+    --local sep = (OS == "windows" and "\r\n" or "\n")
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
 end
@@ -30,26 +28,16 @@ function preInsertNewline(view)
     if view == treeView then
         local selected = view.Buf:Line(view.Cursor.Loc.Y)
         if view.Cursor.Loc.Y == 0 then
-            return false
+            return false -- topmost line is cwd, so disallowing selecting it
         elseif isDir(selected) then
-            cwd = cwd .. "/" .. selected
+            cwd = JoinPaths(cwd, selected)
             RefreshTree()
         else
+            local filename = JoinPaths(cwd, selected)
+            if OS == "windows" then filename = driveLetter .. filename end
             -- TODO: NewBuffer calls NewBufferFromString
             -- ... so manually read file content:
-            local filename
-            if OS == "windows" then
-                -- TODO: The weird "cwd = ./" hack above means we need to cut away "."
-                -- ... and set the drive letter manually:
-                filename = "C:" .. cwd:sub(2) .. "/" .. selected
-            else
-                filename = cwd .. "/" .. selected
-            end
-            local filehandle = io.open(filename)
-            if not filehandle then
-                messenger:Message("Can't open file:", filename)
-                return false
-            end
+            local filehandle = assert(io.open(filename))
             local filecontent = filehandle:read("*all")
             CurView():VSplitIndex(NewBuffer(filecontent, filename), 1)
             tabs[curTab+1]:Resize()
@@ -58,6 +46,7 @@ function preInsertNewline(view)
     end
     return true
 end
+
 
 -- don't use build-in view.Cursor:SelectLine() as it will copy to clipboard
 function SelectLine(v)
@@ -99,7 +88,7 @@ end
 function scandir(directory)
     local i, t, popen = 3, {}, io.popen
     local pfile
-    t[1] = cwd
+    t[1] = cwd -- show path
     t[2] = ".."
     if OS == "windows" then
         pfile = popen('dir /a /b "'..directory..'"')
@@ -107,7 +96,7 @@ function scandir(directory)
         pfile = popen('ls -AF "'..directory..'"')
     end
     for filename in pfile:lines() do
-        t[i] = filename
+        t[i] = tostring(filename)
         i = i + 1
     end
     pfile:close()
@@ -118,9 +107,10 @@ function isDir(path)
     local status = false
     local pfile
     if OS == "windows" then
-        pfile = io.popen('IF EXIST "'.. cwd .. "/" .. path .. '" ECHO d')
+        -- TODO: This should work, but doesn't: github.com/yuin/gopher-lua/issue/90
+        pfile = io.popen('IF EXIST "' .. driveLetter .. JoinPaths(cwd, path) .. '\\*" (ECHO d) ELSE (ECHO -)')
     else
-        pfile = io.popen('ls -adl "' .. cwd .. "/" .. path .. '"')
+        pfile = io.popen('ls -adl "' .. JoinPaths(cwd, path) .. '"')
     end
     if pfile:read(1) == "d" then
         status = true
