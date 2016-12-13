@@ -2,6 +2,9 @@ VERSION = "1.1.4"
 
 treeView = nil
 cwd = "."
+if OS == "windows" then
+    cwd = "./" -- for some reason this works, but "C:" or "%CD%" doesn't
+end
 
 function OpenTree()
     local origNum = CurView().Num
@@ -38,10 +41,17 @@ function preInsertNewline(view)
         else
             -- TODO: NewBuffer calls NewBufferFromString
             -- ... so manually read file content:
-            local filename = cwd .. "/" .. selected
+            local filename
+            if OS == "windows" then
+                -- TODO: The weird "cwd = ./" hack above means we need to cut away "."
+                -- ... and set the drive letter manually:
+                filename = "C:" .. cwd:sub(2) .. "/" .. selected
+            else
+                filename = cwd .. "/" .. selected
+            end
             local filehandle = io.open(filename, "r")
             if not filehandle then
-                TermMessage("Can't open file:", filename)
+                messenger:Message("Can't open file:", filename)
                 return false
             end
             local filecontent = filehandle:read("*all")
@@ -88,21 +98,37 @@ end
 
 function scandir(directory)
     local i, t, popen = 0, {}, io.popen
-    local pfile = popen('ls -aF "'..directory..'"')
-    for filename in pfile:lines() do
-        if i > 0 then
-            -- skip "." dir, (but keep "..")
+    local pfile
+    if OS == "windows" then
+        pfile = popen('dir /a /b "'..directory..'"')
+        t[1] = ".." -- add ".." not shown in dir output
+        i = 2
+        for filename in pfile:lines() do
             t[i] = filename
+            i = i + 1
         end
-        i = i + 1
+    else
+        pfile = popen('ls -aF "'..directory..'"')
+        for filename in pfile:lines() do
+            if i > 0 then
+                -- skip "." dir, (but keep "..")
+                t[i] = filename
+            end
+            i = i + 1
+        end
     end
     pfile:close()
     return t
 end
 
 function isDir(path)
-    local pfile = io.popen('ls -adl "' .. cwd .. "/" .. path .. '"')
     local status = false
+    local pfile
+    if OS == "windows" then
+        pfile = io.popen('IF EXIST "'.. cwd .. "/" .. path .. '" ECHO d')
+    else
+        pfile = io.popen('ls -adl "' .. cwd .. "/" .. path .. '"')
+    end
     if pfile:read(1) == "d" then
         status = true
     end

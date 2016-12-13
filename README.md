@@ -10,6 +10,6 @@ Now it will be possible to open a navigation panel by running the command `tree`
 ![filetree cli](https://i.imgur.com/gO5CnT4.png "Filetree CLI")
 
 ## Known Issues
- * Does not work on Windows
+ * Limited Windows support (can only read files from `C:`)
  * Opening of (huge) files will be slow
- 
+
