@@ -1,4 +1,4 @@
-VERSION = "1.2.3"
+VERSION = "1.2.4"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -88,12 +88,12 @@ end
 function scandir(directory)
     local i, t, popen = 3, {}, io.popen
     local pfile
-    t[1] = cwd -- show path
+    t[1] = cwd
     t[2] = ".."
     if OS == "windows" then
         pfile = popen('dir /a /b "'..directory..'"')
     else
-        pfile = popen('ls -AF "'..directory..'"')
+        pfile = popen('ls -Ap "'..directory..'"')
     end
     for filename in pfile:lines() do
         t[i] = tostring(filename)
