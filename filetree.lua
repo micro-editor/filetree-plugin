@@ -1,4 +1,4 @@
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 
 treeView = nil
 cwd = "."
@@ -7,15 +7,17 @@ if OS == "windows" then
 end
 
 function OpenTree()
-    local origNum = CurView().Num
     CurView():VSplitIndex(NewBuffer("", ""), 0)
-    CurView().Width = 30
-    CurView().LockWidth = true
-    tabs[curTab+1]:Resize()
-
     treeView = CurView()
+    treeView.Width = 20
+    treeView.LockWidth = true
+    treeView.Buf.Settings["ruler"] = false
+    -- treeView.Buf.Settings["softwrap"] = false
+    treeView.Buf.Settings["autosave"] = false
+    treeView.Buf.Settings["statusline"] = false
+    
+    tabs[curTab+1]:Resize()
     RefreshTree()
-    SetFocus(origNum)
 end
 
 function SetFocus(num)
@@ -25,17 +27,15 @@ end
 function RefreshTree()
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
-    treeView.Buf.Settings["softwrap"] = false
-    treeView.Buf.Settings["autosave"] = false
-    treeView.Buf.Settings["statusline"] = false
-    treeView.Buf.IsModified = false
 end
 
 -- When user press enter
 function preInsertNewline(view)
     if view == treeView then
         local selected = view.Buf:Line(view.Cursor.Loc.Y)
-        if isDir(selected) then
+        if view.Cursor.Loc.Y == 0 then
+            return false
+        elseif isDir(selected) then
             cwd = cwd .. "/" .. selected
             RefreshTree()
         else
@@ -49,15 +49,14 @@ function preInsertNewline(view)
             else
                 filename = cwd .. "/" .. selected
             end
-            local filehandle = io.open(filename, "r")
+            local filehandle = io.open(filename)
             if not filehandle then
                 messenger:Message("Can't open file:", filename)
                 return false
             end
             local filecontent = filehandle:read("*all")
-            CurView():VSplitIndex(NewBuffer(filecontent, filename), 0)
+            CurView():VSplitIndex(NewBuffer(filecontent, filename), 1)
             tabs[curTab+1]:Resize()
-            SetFocus(CurView().Num)
         end
         return false
     end
@@ -68,7 +67,7 @@ end
 function SelectLine(v)
     local y = v.Cursor.Loc.Y
     v.Cursor.CurSelection[1] = Loc(0, y)
-    v.Cursor.CurSelection[2] = Loc(30, y) -- TODO: 30 => v.Width
+    v.Cursor.CurSelection[2] = Loc(v.Width, y)
 end
 
 function onCursorDown(view)
