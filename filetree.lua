@@ -1,4 +1,4 @@
-VERSION = "1.2.4"
+VERSION = "1.2.5"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -107,8 +107,7 @@ function isDir(path)
     local status = false
     local pfile
     if OS == "windows" then
-        -- TODO: This should work, but doesn't: github.com/yuin/gopher-lua/issue/90
-        pfile = io.popen('IF EXIST "' .. driveLetter .. JoinPaths(cwd, path) .. '\\*" (ECHO d) ELSE (ECHO -)')
+        pfile = io.popen('IF EXIST ' .. driveLetter .. JoinPaths(cwd, path) .. '/* (ECHO d) ELSE (ECHO -)')
     else
         pfile = io.popen('ls -adl "' .. JoinPaths(cwd, path) .. '"')
     end
