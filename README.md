@@ -14,7 +14,5 @@ Now it will be possible to open a navigation panel by running the command `tree`
 
 ## Known Issues
 
-* Very limited Windows support (also; can only read files from `C:`)
-  See github.com/yuin/gopher-lua/issue/90
+* Limited Windows support (also; can only read files from `C:`)
 
-* Opening of (huge) files will be slow

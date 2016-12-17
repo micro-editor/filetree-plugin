@@ -1,8 +1,9 @@
-VERSION = "1.2.5"
+VERSION = "1.2.6"
 
 treeView = nil
 cwd = DirectoryName(".")
 driveLetter = "C:\\"
+isWin = (OS == "windows")
 
 function OpenTree()
     CurView():VSplitIndex(NewBuffer("", ""), 0)
@@ -18,7 +19,6 @@ function OpenTree()
 end
 
 function RefreshTree()
-    --local sep = (OS == "windows" and "\r\n" or "\n")
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
 end
@@ -34,12 +34,9 @@ function preInsertNewline(view)
             RefreshTree()
         else
             local filename = JoinPaths(cwd, selected)
-            if OS == "windows" then filename = driveLetter .. filename end
-            -- TODO: NewBuffer calls NewBufferFromString
-            -- ... so manually read file content:
-            local filehandle = assert(io.open(filename))
-            local filecontent = filehandle:read("*all")
-            CurView():VSplitIndex(NewBuffer(filecontent, filename), 1)
+            if isWin then filename = driveLetter .. filename end
+            CurView():VSplitIndex(NewBuffer("", filename), 1)
+            CurView():ReOpen()
             tabs[curTab+1]:Resize()
         end
         return false
@@ -88,15 +85,15 @@ end
 function scandir(directory)
     local i, t, popen = 3, {}, io.popen
     local pfile
-    t[1] = cwd
+    t[1] = (isWin and driveLetter or "") .. cwd
     t[2] = ".."
-    if OS == "windows" then
+    if isWin then
         pfile = popen('dir /a /b "'..directory..'"')
     else
         pfile = popen('ls -Ap "'..directory..'"')
     end
     for filename in pfile:lines() do
-        t[i] = tostring(filename)
+        t[i] = filename
         i = i + 1
     end
     pfile:close()
@@ -106,7 +103,7 @@ end
 function isDir(path)
     local status = false
     local pfile
-    if OS == "windows" then
+    if isWin then
         pfile = io.popen('IF EXIST ' .. driveLetter .. JoinPaths(cwd, path) .. '/* (ECHO d) ELSE (ECHO -)')
     else
         pfile = io.popen('ls -adl "' .. JoinPaths(cwd, path) .. '"')
