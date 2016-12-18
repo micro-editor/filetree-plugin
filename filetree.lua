@@ -44,7 +44,6 @@ function preInsertNewline(view)
     return true
 end
 
-
 -- don't use build-in view.Cursor:SelectLine() as it will copy to clipboard
 function SelectLine(v)
     local y = v.Cursor.Loc.Y
