@@ -9,7 +9,7 @@ Now it will be possible to open a navigation panel by running the command `tree`
 
 ## Example
 
-![filetree cli](https://i.imgur.com/YdBtZx1.png "Filetree CLI")
+![filetree cli](https://i.imgur.com/MBou7Hb.png "Filetree CLI")
 
 
 ## Known Issues

@@ -1,4 +1,4 @@
-VERSION = "1.2.6"
+VERSION = "1.2.7"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -20,13 +20,13 @@ end
 
 function RefreshTree()
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
-    treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n"))
+    treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n "))
 end
 
 -- When user press enter
 function preInsertNewline(view)
     if view == treeView then
-        local selected = view.Buf:Line(view.Cursor.Loc.Y)
+        local selected = (view.Buf:Line(view.Cursor.Loc.Y)):sub(2)
         if view.Cursor.Loc.Y == 0 then
             return false -- topmost line is cwd, so disallowing selecting it
         elseif isDir(selected) then
@@ -115,3 +115,4 @@ function isDir(path)
 end
 
 MakeCommand("tree", "filetree.OpenTree", 0)
+AddRuntimeFile("filetree", "syntax", "syntax.micro")
