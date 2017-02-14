@@ -1,4 +1,4 @@
-VERSION = "1.3.0"
+VERSION = "1.3.1"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -84,9 +84,10 @@ function preDelete(view)
             command = isWin and "del" or "rm -I"
         end
         command = command .. " " .. (isWin and driveLetter or "") .. JoinPaths(cwd, selected)
+
         local yes, cancel = messenger:YesNoPrompt(question)
         if not cancel and yes then
-            io.popen(command .. " " .. selected):close()
+            os.execute(command)
             RefreshTree()
         end
         return false
