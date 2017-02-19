@@ -5,8 +5,13 @@ A simple plugin that allows for easy navigation of a file tree.
 Place this folder in `~/.config/micro/plugins/` and restart micro:
 > git clone https://github.com/NicolaiSoeborg/filetree-plugin.git ~/.config/micro/plugins/filetree
 
-Now it will be possible to open a navigation panel by running the command `tree` (ctrl + e).
-
+Now it will be possible to open a navigation panel by running 
+the command `tree` (ctrl + e) or creating a keybinding like so:
+```
+{
+	"Ctrl-E":  "filetree.OpenTree"
+}
+```
 
 ## Example
 

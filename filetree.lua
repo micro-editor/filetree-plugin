@@ -1,4 +1,4 @@
-VERSION = "1.3.1"
+VERSION = "1.3.2"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -14,14 +14,14 @@ function OpenTree()
     SetLocalOption("softwrap", "true", treeView)
     SetLocalOption("autosave", "false", treeView)
     SetLocalOption("statusline", "false", treeView)
-    --SetLocalOption("readonly", "true", treeView)
+    SetLocalOption("readonly", "true", treeView)
     tabs[curTab+1]:Resize()
-    RefreshTree()
+    refreshTree()
 end
 
-function RefreshTree()
+function refreshTree()
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
-    treeView.Buf:Insert(Loc(0,0), table.concat(scandir(cwd), "\n "))
+    treeView.Buf:Insert(Loc(0,0), table.concat(scanDir(cwd), "\n "))
 end
 
 -- returns currently selected line in treeView
@@ -37,7 +37,7 @@ function preInsertNewline(view)
             return false -- topmost line is cwd, so disallowing selecting it
         elseif isDir(selected) then
             cwd = JoinPaths(cwd, selected)
-            RefreshTree()
+            refreshTree()
         else
             local filename = JoinPaths(cwd, selected)
             if isWin then filename = driveLetter .. filename end
@@ -58,7 +58,7 @@ function preCursorUp(view)
 end end end
 
 -- don't use build-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
-function SelectLineInTree(v)
+function selectLineInTree(v)
     if v == treeView then
         local y = v.Cursor.Loc.Y
         v.Cursor.CurSelection[1] = Loc(0, y)
@@ -67,29 +67,32 @@ function SelectLineInTree(v)
 end
 
 -- 'beautiful' file selection:
-function onCursorDown(view) SelectLineInTree(view) end
-function onCursorUp(view)   SelectLineInTree(view) end
+function onCursorDown(view) selectLineInTree(view) end
+function onCursorUp(view)   selectLineInTree(view) end
 
 -- allows for deleting files
 function preDelete(view)
     if view == treeView then
         local selected = getSelection()
         if selected == ".." then return false end
-        local question, command
+        local type, command
         if isDir(selected) then
-            question = "Do you want to delete dir '"..selected.."' ?"
+            type = "dir"
             command = isWin and "del /S /Q" or "rm -r"
         else
-            question = "Do you want to delete file '"..selected.."' ?"
+            type = "file"
             command = isWin and "del" or "rm -I"
         end
         command = command .. " " .. (isWin and driveLetter or "") .. JoinPaths(cwd, selected)
 
-        local yes, cancel = messenger:YesNoPrompt(question)
+        local yes, cancel = messenger:YesNoPrompt("Do you want to delete " .. type .. " '" .. selected .. "'? ")
         if not cancel and yes then
             os.execute(command)
-            RefreshTree()
+            refreshTree()
         end
+        -- Clears messenger:
+        messenger:Reset()
+        messenger:Clear()
         return false
     end
     return true
@@ -103,7 +106,7 @@ function preQuit(view)
     return true
 end
 
-function scandir(directory)
+function scanDir(directory)
     local i, t, proc = 3, {}, nil
     t[1] = (isWin and driveLetter or "") .. cwd
     t[2] = ".."
