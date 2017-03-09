@@ -1,4 +1,4 @@
-# Filetree Plugin
+# Filemanager Plugin
 
 A simple plugin that allows for easy navigation of a file tree.
 
@@ -10,7 +10,6 @@ the command `tree` (<kbd>Ctrl</kbd> + <kbd>E</kbd>) or creating
 a keybinding like so:
 ```
 {
-	"Alt-E":  "filemanager.ToggleTree"
 }
 ```
 
