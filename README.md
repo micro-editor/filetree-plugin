@@ -10,6 +10,7 @@ the command `tree` (<kbd>Ctrl</kbd> + <kbd>E</kbd>) or creating
 a keybinding like so:
 ```
 {
+	"CtrlW":  "filemanager.ToggleTree"
 }
 ```
 
