@@ -1,4 +1,4 @@
-VERSION = "1.3.2"
+VERSION = "1.3.3"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -17,6 +17,22 @@ function OpenTree()
     SetLocalOption("readonly", "true", treeView)
     tabs[curTab+1]:Resize()
     refreshTree()
+end
+
+function CloseTree()
+    if treeView ~= nil then
+        treeView.Buf.IsModified = false
+        treeView:Quit(false)
+        treeView = nil
+    end
+end
+
+function ToggleTree()
+    if treeView == nil then
+        OpenTree()
+    else
+        CloseTree()
+    end
 end
 
 function refreshTree()
@@ -93,9 +109,8 @@ function preDelete(view)
         -- Clears messenger:
         messenger:Reset()
         messenger:Clear()
-        return false
+        return false -- don't "allow" delete
     end
-    return true
 end
 
 -- don't prompt to save tree view
@@ -103,8 +118,8 @@ function preQuit(view)
     if view == treeView then
         view.Buf.IsModified = false
     end
-    return true
 end
+function preQuitAll(view) treeView.Buf.IsModified = false end
 
 function scanDir(directory)
     local i, t, proc = 3, {}, nil
@@ -137,5 +152,5 @@ function isDir(path)
     return dir
 end
 
-MakeCommand("tree", "filetree.OpenTree", 0)
-AddRuntimeFile("filetree", "syntax", "syntax.micro")
+MakeCommand("tree", "filemanager.ToggleTree", 0)
+AddRuntimeFile("filemanager", "syntax", "syntax.micro")

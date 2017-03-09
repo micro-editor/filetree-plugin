@@ -3,19 +3,20 @@
 A simple plugin that allows for easy navigation of a file tree.
 
 Place this folder in `~/.config/micro/plugins/` and restart micro:
-> git clone https://github.com/NicolaiSoeborg/filetree-plugin.git ~/.config/micro/plugins/filetree
+> git clone https://github.com/NicolaiSoeborg/filemanager-plugin.git ~/.config/micro/plugins/filemanager
 
 Now it will be possible to open a navigation panel by running 
-the command `tree` (ctrl + e) or creating a keybinding like so:
+the command `tree` (<kbd>Ctrl</kbd> + <kbd>E</kbd>) or creating
+a keybinding like so:
 ```
 {
-	"Ctrl-E":  "filetree.OpenTree"
+	"Alt-E":  "filemanager.ToggleTree"
 }
 ```
 
 ## Example
 
-![filetree cli](https://i.imgur.com/MBou7Hb.png "Filetree CLI")
+![filemanager](https://i.imgur.com/MBou7Hb.png "Filemanager")
 
 ## Issues
 
