@@ -1,4 +1,4 @@
-VERSION = "1.3.3"
+VERSION = "1.3.4"
 
 treeView = nil
 cwd = DirectoryName(".")
@@ -153,4 +153,4 @@ function isDir(path)
 end
 
 MakeCommand("tree", "filemanager.ToggleTree", 0)
-AddRuntimeFile("filemanager", "syntax", "syntax.micro")
+AddRuntimeFile("filemanager", "syntax", "syntax.yaml")

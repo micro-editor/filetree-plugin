@@ -1,0 +1,7 @@
+filetype: manager
+
+detect:
+    filename: "^$"
+
+rules:
+    - special: "\\.\\.|/"

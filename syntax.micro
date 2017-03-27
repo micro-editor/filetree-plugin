@@ -1,3 +1,0 @@
-syntax "filemanager-plugin" "^$"
-
-color special "\.\.|/"
