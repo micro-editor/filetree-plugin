@@ -8,7 +8,7 @@ debug = true
 
 -- ToggleTree will toggle the tree view visible (create) and hide (delete).
 function ToggleTree()
-    if debug == true then messenger:AddLog("<--- ToggleTree()  --->") end
+    if debug == true then messenger:AddLog("***** ToggleTree() *****") end
     if treeView == nil then
         OpenTree()
     else
@@ -18,7 +18,7 @@ end
 
 -- OpenTree setup's the view
 function OpenTree()
-    if debug == true then messenger:AddLog("<--- OpenTree()  --->") end
+    if debug == true then messenger:AddLog("***** OpenTree() *****") end
     CurView():VSplitIndex(NewBuffer("", "FileManager"), 0)
     setupOptions()
     refreshTree()
@@ -26,7 +26,7 @@ end
 
 -- setupOptions setup tree view options
 function setupOptions()
-    if debug == true then messenger:AddLog("<--- setupOptions()  --->") end
+    if debug == true then messenger:AddLog("***** setupOptions() *****") end
     treeView = CurView()
     treeView.Width = 30
     treeView.LockWidth = true
@@ -48,13 +48,13 @@ end
 function onMousePress(view, event)
     if view == treeView then  -- check view is tree as only want inputs from that view.
          local columns, rows = event:Position()
-         if debug == true then messenger:AddLog("Mouse pressed -> columns location rows location -> ",columns,rows) end
+         if debug == true then messenger:AddLog("INFO: --> Mouse pressed -> columns location rows location -> ",columns,rows) end
     end
 end
 
 -- CloseTree will close the tree plugin view and release memory.
 function CloseTree()
-    if debug == true then messenger:AddLog("<--- CloseTree()  --->") end
+    if debug == true then messenger:AddLog("***** CloseTree() *****") end
     if treeView ~= nil then
         treeView.Buf.IsModified = false
         treeView:Quit(false)
@@ -66,21 +66,21 @@ end
 
 -- refreshTree will remove the buffer and load contents from folder
 function refreshTree()
-    if debug == true then messenger:AddLog("<--- refreshTree()  --->") end
+    if debug == true then messenger:AddLog("***** refreshTree() *****") end
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scanDir(cwd), "\n "))
 end
 
 -- returns currently selected line in treeView
 function getSelection()
-    if debug == true then messenger:AddLog("<--- getSelection()  --->") end
+    if debug == true then messenger:AddLog("***** getSelection() *****") end
     return (treeView.Buf:Line(treeView.Cursor.Loc.Y)):sub(2)
 end
 
 -- When user presses enter then if it is a folder clear buffer and reload contents with folder selected.
 -- If it is a file then open it in a new vertical view
 function preInsertNewline(view)
-    if debug == true then messenger:AddLog("<--- preInsertNewLine(view) %v --->",view) end
+    if debug == true then messenger:AddLog("***** preInsertNewLine(view)  ---> ",view) end
     if view == treeView then
         local selected = getSelection()
         if view.Cursor.Loc.Y == 0 then
@@ -102,7 +102,7 @@ end
 
 -- disallow selecting topmost line in treeView:
 function preCursorUp(view) 
-    if debug == true then messenger:AddLog("<--- preCursor(view)  %v  --->",view) end
+    if debug == true then messenger:AddLog("***** preCursor(view)  ---> ",view) end
     if view == treeView then
         if view.Cursor.Loc.Y == 1 then
             return false
@@ -110,7 +110,7 @@ end end end
 
 -- don't use built-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
 function selectLineInTree(view)
-    if debug == true then messenger:AddLog("<--- selectLineInTree(v) %v  --->",view) end
+    if debug == true then messenger:AddLog("***** selectLineInTree(v)  ---> ",view) end
     if view == treeView then
         local y = view.Cursor.Loc.Y
         view.Cursor.CurSelection[1] = Loc(0, y)
@@ -124,7 +124,7 @@ function onCursorUp(view)   selectLineInTree(view) end
 
 -- allows for deleting files
 function preDelete(view)
-    if debug == true then messenger:AddLog("<--- preDelete(view) %v  --->",view) end
+    if debug == true then messenger:AddLog("***** preDelete(view)  ---> ",view) end
     if view == treeView then
         local selected = getSelection()
         if selected == ".." then return false end
@@ -152,7 +152,7 @@ end
 
 -- don't prompt to save tree view
 function preQuit(view)
-    if debug == true then messenger:AddLog("<--- preQuit(view) %v  --->",view) end
+    if debug == true then messenger:AddLog("***** preQuit(view) ---> ",view) end
     if view == treeView then
         view.Buf.IsModified = false
     end
@@ -161,7 +161,7 @@ function preQuitAll(view) treeView.Buf.IsModified = false end
 
 -- scanDir will scan contents of the directory passed.
 function scanDir(directory)
-    if debug == true then messenger:AddLog("<--- scanDir(directory) %v  --->",directory) end
+    if debug == true then messenger:AddLog("***** scanDir(directory) ---> ",directory) end
     local i, list, proc = 3, {}, nil
     list[1] = (isWin and driveLetter or "") .. cwd  -- TODO: get current directory working.
     list[2] = ".."  -- used for going up a level in directory.
@@ -182,7 +182,7 @@ end
 -- isDir checks if the path passed is a directory.
 -- return true if it is a directory else false if it is not a directory.
 function isDir(path)
-    if debug == true then messenger:AddLog("<--- isDir(path) %v  --->",path) end
+    if debug == true then messenger:AddLog("***** isDir(path) ---> ",path) end
     local dir, proc = false, nil
     if isWin then
         proc = io.popen('IF EXIST ' .. driveLetter .. JoinPaths(cwd, path) .. '/* (ECHO d) ELSE (ECHO -)')
