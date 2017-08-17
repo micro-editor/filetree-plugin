@@ -4,7 +4,9 @@ treeView = nil
 cwd = DirectoryName(".")
 driveLetter = "C:\\"
 isWin = (OS == "windows")
+debug = false
 
+-- OpenTree setup's the view
 function OpenTree()
     CurView():VSplitIndex(NewBuffer("", ""), 0)
     treeView = CurView()
@@ -15,10 +17,19 @@ function OpenTree()
     SetLocalOption("autosave", "false", treeView)
     SetLocalOption("statusline", "false", treeView)
     SetLocalOption("readonly", "true", treeView)
+    SetLocalOption("kind",2,treeView)
     tabs[curTab+1]:Resize()
+    if debug == true then messenger:Error("test") end
     refreshTree()
 end
 
+-- mouse callback from micro editor when a left button is clicked on your view
+function onMousePress(view, event)
+    local colunms, rows = event:Position()
+    if debug == true then messenger:Error("coloumns location rows location ",colunms,rows) end
+end
+
+-- CloseTree will close the tree plugin view and release memory.
 function CloseTree()
     if treeView ~= nil then
         treeView.Buf.IsModified = false
@@ -27,6 +38,7 @@ function CloseTree()
     end
 end
 
+-- ToggleTree will toggle the view visable and hidden.
 function ToggleTree()
     if treeView == nil then
         OpenTree()
@@ -35,6 +47,7 @@ function ToggleTree()
     end
 end
 
+-- refreshTree will remove the buffer and load contents from folder
 function refreshTree()
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
     treeView.Buf:Insert(Loc(0,0), table.concat(scanDir(cwd), "\n "))
@@ -45,16 +58,17 @@ function getSelection()
     return (treeView.Buf:Line(treeView.Cursor.Loc.Y)):sub(2)
 end
 
--- When user press enter
+-- When user presses enter then if it is a folder clear buffer and reload contents with folder selected.
+-- If it is a file then open it in a new vertical view
 function preInsertNewline(view)
     if view == treeView then
         local selected = getSelection()
         if view.Cursor.Loc.Y == 0 then
             return false -- topmost line is cwd, so disallowing selecting it
-        elseif isDir(selected) then
+        elseif isDir(selected) then  -- if directory then reload contents of tree view
             cwd = JoinPaths(cwd, selected)
             refreshTree()
-        else
+        else  -- open file in new vertical view
             local filename = JoinPaths(cwd, selected)
             if isWin then filename = driveLetter .. filename end
             CurView():VSplitIndex(NewBuffer("", filename), 1)
@@ -66,14 +80,14 @@ function preInsertNewline(view)
     return true
 end
 
--- disallow selecting topmost line in treeview:
+-- disallow selecting topmost line in treeView:
 function preCursorUp(view) 
     if view == treeView then
         if view.Cursor.Loc.Y == 1 then
             return false
 end end end
 
--- don't use build-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
+-- don't use built-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
 function selectLineInTree(v)
     if v == treeView then
         local y = v.Cursor.Loc.Y
@@ -121,6 +135,7 @@ function preQuit(view)
 end
 function preQuitAll(view) treeView.Buf.IsModified = false end
 
+-- scanDir will scan contents of the directory passed.
 function scanDir(directory)
     local i, t, proc = 3, {}, nil
     t[1] = (isWin and driveLetter or "") .. cwd
@@ -138,6 +153,8 @@ function scanDir(directory)
     return t
 end
 
+-- isDir checks if the path passed is a directory.
+-- return true if it is a directory else false if it is not a directory.
 function isDir(path)
     local dir, proc = false, nil
     if isWin then
@@ -152,5 +169,6 @@ function isDir(path)
     return dir
 end
 
+-- micro editor 
 MakeCommand("tree", "filemanager.ToggleTree", 0)
 AddRuntimeFile("filemanager", "syntax", "syntax.yaml")
