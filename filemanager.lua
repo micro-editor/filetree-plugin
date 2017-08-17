@@ -1,7 +1,7 @@
-VERSION = "1.3.4"
+VERSION = "1.4.0"
 
 treeView = nil
-cwd = DirectoryName(".")
+cwd = WorkingDirectory()
 driveLetter = "C:\\"
 isWin = (OS == "windows")
 debug = true
@@ -167,7 +167,7 @@ function preQuitAll(view) treeView.Buf.IsModified = false end
 function scanDir(directory)
     if debug == true then messenger:AddLog("***** scanDir(directory) ---> ",directory) end
     local i, list, proc = 3, {}, nil
-    list[1] = (isWin and driveLetter or "") .. cwd  -- TODO: get current directory working.
+    list[1] = (isWin and driveLetter or "") .. cwd  -- current directory working.
     list[2] = ".."  -- used for going up a level in directory.
     if isWin then  -- if windows
         proc = io.popen('dir /a /b "'..directory..'"')
@@ -201,11 +201,6 @@ function isDir(path)
     return dir
 end
 
-function Test()
-    messenger:Error("Current Directory -->",WorkingDirectory())
-end
-
--- micro editor 
+-- micro editor commands
 MakeCommand("tree", "filemanager.ToggleTree", 0)
-MakeCommand("treet","filemanager.Test",0)
 AddRuntimeFile("filemanager", "syntax", "syntax.yaml")
