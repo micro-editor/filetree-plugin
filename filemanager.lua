@@ -37,7 +37,7 @@ end
 -- mouse callback from micro editor when a left button is clicked on your view
 function onMousePress(view, event)
     local columns, rows = event:Position()
-    if debug == true then messenger:Error("coloumns location rows location ",columns,rows) end
+    if debug == true then messenger:Error("columns location rows location ",columns,rows) end
 end
 
 -- CloseTree will close the tree plugin view and release memory.
