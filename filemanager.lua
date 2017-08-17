@@ -17,7 +17,7 @@ end
 
 -- OpenTree setup's the view
 function OpenTree()
-    CurView():VSplitIndex(NewBuffer("", ""), 0)
+    CurView():VSplitIndex(NewBuffer("", "FileManager"), 0)
     setupOptions()
     refreshTree()
 end
