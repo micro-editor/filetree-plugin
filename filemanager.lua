@@ -39,17 +39,8 @@ function setupOptions()
     if status ~= nil then messenger:Error("Error setting autosave option -> ", status)  end
     status = SetLocalOption("statusline", "false", treeView)
     if status ~= nil then messenger:Error("Error setting statusline option -> ",status) end
-    if debug == true then messenger:Error("INFO: View Type --> id - readonly - scratch  --> ",treeView.Type) end
     -- TODO: need to set readonly in view type.
     tabs[curTab+1]:Resize()
-end
-
--- mouse callback from micro editor when a left button is clicked on your view
-function onMousePress(view, event)
-    if view == treeView then  -- check view is tree as only want inputs from that view.
-         local columns, rows = event:Position()
-         if debug == true then messenger:AddLog("INFO: --> Mouse pressed -> columns location rows location -> ",columns,rows) end
-    end
 end
 
 -- CloseTree will close the tree plugin view and release memory.
@@ -62,56 +53,26 @@ function CloseTree()
     end
 end
 
-
-
 -- refreshTree will remove the buffer and load contents from folder
 function refreshTree()
     if debug == true then messenger:AddLog("***** refreshTree() *****") end
+    -- if debug == true then messenger:AddLog("Start -> ",treeView.Buf:Start()," End -> ",treeView.Buf:End()) end
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
-    treeView.Buf:Insert(Loc(0,0), table.concat(scanDir(cwd), "\n "))
+    local list = table.concat(scanDir(cwd), "\n ")
+    if debug == true then messenger:AddLog("dir -> ",list) end
+    treeView.Buf:Insert(Loc(0,0),list)
 end
 
 -- returns currently selected line in treeView
 function getSelection()
-    if debug == true then messenger:AddLog("***** getSelection() *****") end
+    if debug == true then messenger:AddLog("***** getSelection() ---> ",treeView.Buf:Line(treeView.Cursor.Loc.Y):sub(2)) end
     return (treeView.Buf:Line(treeView.Cursor.Loc.Y)):sub(2)
 end
 
--- When user presses enter then if it is a folder clear buffer and reload contents with folder selected.
--- If it is a file then open it in a new vertical view
-function preInsertNewline(view)
-    if debug == true then messenger:AddLog("***** preInsertNewLine(view)  ---> ",view) end
-    if view == treeView then
-        local selected = getSelection()
-        if view.Cursor.Loc.Y == 0 then
-            return false -- topmost line is cwd, so disallowing selecting it
-        elseif isDir(selected) then  -- if directory then reload contents of tree view
-            cwd = JoinPaths(cwd, selected)
-            refreshTree()
-        else  -- open file in new vertical view
-            local filename = JoinPaths(cwd, selected)
-            if isWin then filename = driveLetter .. filename end
-            CurView():VSplitIndex(NewBuffer("", filename), 1)
-            CurView():ReOpen()
-            tabs[curTab+1]:Resize()
-        end
-        return false
-    end
-    return true
-end
-
--- disallow selecting topmost line in treeView:
-function preCursorUp(view) 
-    if debug == true then messenger:AddLog("***** preCursor(view)  ---> ",view) end
-    if view == treeView then
-        if view.Cursor.Loc.Y == 1 then
-            return false
-end end end
-
 -- don't use built-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
 function selectLineInTree(view)
-    if debug == true then messenger:AddLog("***** selectLineInTree(v)  ---> ",view) end
     if view == treeView then
+        if debug == true then messenger:AddLog("***** selectLineInTree(view) *****") end
         local y = view.Cursor.Loc.Y
         view.Cursor.CurSelection[1] = Loc(0, y)
         view.Cursor.CurSelection[2] = Loc(view.Width, y)
@@ -122,10 +83,27 @@ end
 function onCursorDown(view) selectLineInTree(view) end
 function onCursorUp(view)   selectLineInTree(view) end
 
+-- mouse callback from micro editor when a left button is clicked on your view
+function onMousePress(view, event)
+    if view == treeView then  -- check view is tree as only want inputs from that view.
+         local columns, rows = event:Position()
+         if debug == true then messenger:AddLog("INFO: --> Mouse pressed -> columns location rows location -> ",columns,rows) end
+         return false
+    end
+end
+
+-- disallow selecting topmost line in treeView:
+function preCursorUp(view)  
+    if view == treeView then
+        if debug == true then messenger:AddLog("***** preCursor(view) *****") end
+        if view.Cursor.Loc.Y == 1 then
+            return false
+end end end
+
 -- allows for deleting files
 function preDelete(view)
-    if debug == true then messenger:AddLog("***** preDelete(view)  ---> ",view) end
     if view == treeView then
+        if debug == true then messenger:AddLog("***** preDelete(view) *****") end
         local selected = getSelection()
         if selected == ".." then return false end
         local type, command
@@ -150,10 +128,36 @@ function preDelete(view)
     end
 end
 
+
+-- When user presses enter then if it is a folder clear buffer and reload contents with folder selected.
+-- If it is a file then open it in a new vertical view
+function preInsertNewline(view)
+    if view == treeView then
+        if debug == true then messenger:AddLog("***** preInsertNewLine(view)  *****") end
+        local selected = getSelection()
+        if view.Cursor.Loc.Y == 0 then
+            return false -- topmost line is cwd, so disallowing selecting it
+        elseif isDir(selected) then  -- if directory then reload contents of tree view
+            if debug == true then messenger:AddLog("current working directory -> ",cwd) end
+            cwd = JoinPaths(cwd, selected)
+            if debug == true then messenger:AddLog("current working directory with selected directory -> ",cwd) end
+            refreshTree()
+        else  -- open file in new vertical view
+            local filename = JoinPaths(cwd, selected)
+            if isWin then filename = driveLetter .. filename end
+            CurView():VSplitIndex(NewBuffer("", filename), 1)
+            CurView():ReOpen()
+            tabs[curTab+1]:Resize()
+        end
+        return false
+    end
+    return true
+end
+
 -- don't prompt to save tree view
 function preQuit(view)
-    if debug == true then messenger:AddLog("***** preQuit(view) ---> ",view) end
     if view == treeView then
+        if debug == true then messenger:AddLog("***** preQuit(view) *****") end
         view.Buf.IsModified = false
     end
 end
@@ -193,9 +197,15 @@ function isDir(path)
         dir = true
     end
     proc:close()
+    if debug == true then messenger:AddLog("is Dir Return = ",dir) end
     return dir
+end
+
+function Test()
+    messenger:Error("Current Directory -->",WorkingDirectory())
 end
 
 -- micro editor 
 MakeCommand("tree", "filemanager.ToggleTree", 0)
+MakeCommand("treet","filemanager.Test",0)
 AddRuntimeFile("filemanager", "syntax", "syntax.yaml")
