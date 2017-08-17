@@ -12,21 +12,23 @@ function OpenTree()
     treeView = CurView()
     treeView.Width = 30
     treeView.LockWidth = true
-    SetLocalOption("ruler", "false", treeView)
-    SetLocalOption("softwrap", "true", treeView)
-    SetLocalOption("autosave", "false", treeView)
-    SetLocalOption("statusline", "false", treeView)
-    SetLocalOption("readonly", "true", treeView)
-    SetLocalOption("kind",2,treeView)
+    -- set options for tree view
+    status = SetLocalOption("ruler", "false", treeView)
+    if status ~= nil then messenger:Error("ruler -> ",status) end
+    status = SetLocalOption("softwrap", "true", treeView)
+    if status ~= nil then messenger:Error("softwrap -> ",status) end
+    status = SetLocalOption("autosave", "false", treeView)
+    if status ~= nil then messenger:Error("autosave -> ", status)  end
+    status = SetLocalOption("statusline", "false", treeView)
+    if status ~= nil then messenger:Error("statusline -> ",status) end
     tabs[curTab+1]:Resize()
-    if debug == true then messenger:Error("test") end
     refreshTree()
 end
 
 -- mouse callback from micro editor when a left button is clicked on your view
 function onMousePress(view, event)
-    local colunms, rows = event:Position()
-    if debug == true then messenger:Error("coloumns location rows location ",colunms,rows) end
+    local columns, rows = event:Position()
+    if debug == true then messenger:Error("coloumns location rows location ",columns,rows) end
 end
 
 -- CloseTree will close the tree plugin view and release memory.
