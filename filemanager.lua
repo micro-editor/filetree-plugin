@@ -32,21 +32,24 @@ function setupOptions()
     treeView.LockWidth = true
     -- set options for tree view
     status = SetLocalOption("ruler", "false", treeView)
-    if status ~= nil then messenger:AddLog("ruler -> ",status) end
+    if status ~= nil then messenger:Error("Error setting ruler option -> ",status) end
     status = SetLocalOption("softwrap", "true", treeView)
-    if status ~= nil then messenger:AddLog("softwrap -> ",status) end
+    if status ~= nil then messenger:Error("Error setting softwrap option -> ",status) end
     status = SetLocalOption("autosave", "false", treeView)
-    if status ~= nil then messenger:AddLog("autosave -> ", status)  end
+    if status ~= nil then messenger:Error("Error setting autosave option -> ", status)  end
     status = SetLocalOption("statusline", "false", treeView)
-    if status ~= nil then messenger:AddLog("statusline -> ",status) end
-    messenger:Error("Error -> ",treeView.Type)
+    if status ~= nil then messenger:Error("Error setting statusline option -> ",status) end
+    if debug == true then messenger:Error("INFO: View Type --> id - readonly - scratch  --> ",treeView.Type) end
+    -- TODO: need to set readonly in view type.
     tabs[curTab+1]:Resize()
 end
 
 -- mouse callback from micro editor when a left button is clicked on your view
 function onMousePress(view, event)
-    local columns, rows = event:Position()
-    if debug == true then messenger:AddLog("columns location rows location ",columns,rows) end
+    if view == treeView then  -- check view is tree as only want inputs from that view.
+         local columns, rows = event:Position()
+         if debug == true then messenger:AddLog("Mouse pressed -> columns location rows location -> ",columns,rows) end
+    end
 end
 
 -- CloseTree will close the tree plugin view and release memory.
@@ -106,12 +109,12 @@ function preCursorUp(view)
 end end end
 
 -- don't use built-in view.Cursor:SelectLine() as it will copy to clipboard (in old versions of Micro)
-function selectLineInTree(v)
-    if debug == true then messenger:AddLog("<--- selectLineInTree(v) %v  --->",v) end
-    if v == treeView then
-        local y = v.Cursor.Loc.Y
-        v.Cursor.CurSelection[1] = Loc(0, y)
-        v.Cursor.CurSelection[2] = Loc(v.Width, y)
+function selectLineInTree(view)
+    if debug == true then messenger:AddLog("<--- selectLineInTree(v) %v  --->",view) end
+    if view == treeView then
+        local y = view.Cursor.Loc.Y
+        view.Cursor.CurSelection[1] = Loc(0, y)
+        view.Cursor.CurSelection[2] = Loc(view.Width, y)
     end
 end
 
@@ -159,20 +162,21 @@ function preQuitAll(view) treeView.Buf.IsModified = false end
 -- scanDir will scan contents of the directory passed.
 function scanDir(directory)
     if debug == true then messenger:AddLog("<--- scanDir(directory) %v  --->",directory) end
-    local i, t, proc = 3, {}, nil
-    t[1] = (isWin and driveLetter or "") .. cwd
-    t[2] = ".."
-    if isWin then
+    local i, list, proc = 3, {}, nil
+    list[1] = (isWin and driveLetter or "") .. cwd  -- TODO: get current directory working.
+    list[2] = ".."  -- used for going up a level in directory.
+    if isWin then  -- if windows
         proc = io.popen('dir /a /b "'..directory..'"')
-    else
+    else           -- linux or unix system
         proc = io.popen('ls -Ap "'..directory..'"')
     end
+    -- load filenames to a list
     for filename in proc:lines() do
-        t[i] = filename
+        list[i] = filename
         i = i + 1
     end
     proc:close()
-    return t
+    return list
 end
 
 -- isDir checks if the path passed is a directory.
