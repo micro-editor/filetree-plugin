@@ -18,6 +18,12 @@ end
 -- OpenTree setup's the view
 function OpenTree()
     CurView():VSplitIndex(NewBuffer("", ""), 0)
+    setupOptions()
+    refreshTree()
+end
+
+-- setupOptions setup tree view options
+function setupOptions()
     treeView = CurView()
     treeView.Width = 30
     treeView.LockWidth = true
@@ -31,7 +37,6 @@ function OpenTree()
     status = SetLocalOption("statusline", "false", treeView)
     if status ~= nil then messenger:Error("statusline -> ",status) end
     tabs[curTab+1]:Resize()
-    refreshTree()
 end
 
 -- mouse callback from micro editor when a left button is clicked on your view
