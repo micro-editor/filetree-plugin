@@ -6,6 +6,15 @@ driveLetter = "C:\\"
 isWin = (OS == "windows")
 debug = false
 
+-- ToggleTree will toggle the tree view visible (create) and hide (delete).
+function ToggleTree()
+    if treeView == nil then
+        OpenTree()
+    else
+        CloseTree()
+    end
+end
+
 -- OpenTree setup's the view
 function OpenTree()
     CurView():VSplitIndex(NewBuffer("", ""), 0)
@@ -40,14 +49,7 @@ function CloseTree()
     end
 end
 
--- ToggleTree will toggle the view visable and hidden.
-function ToggleTree()
-    if treeView == nil then
-        OpenTree()
-    else
-        CloseTree()
-    end
-end
+
 
 -- refreshTree will remove the buffer and load contents from folder
 function refreshTree()
