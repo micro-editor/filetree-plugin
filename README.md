@@ -27,3 +27,4 @@ Please use the issue tracker to fill issues or feature requests!
 
 * Limited Windows support (also; can only read files from `C:`)
 
+* Version 2 not backwards compatible, only works on Micro Editor version 1.3.2 and above.
