@@ -4,7 +4,7 @@ treeView = nil
 cwd = WorkingDirectory()
 driveLetter = "C:\\"
 isWin = (OS == "windows")
-debug = true
+debug = false
 
 -- ToggleTree will toggle the tree view visible (create) and hide (delete).
 function ToggleTree()
