@@ -168,6 +168,7 @@ function preQuit(view)
     if view == treeView then
         debug("***** preQuit() *****")
         view.Buf.IsModified = false
+        treeView = nil
     end
 end
 function preQuitAll(view) treeView.Buf.IsModified = false end
