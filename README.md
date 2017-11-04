@@ -2,8 +2,7 @@
 
 A simple plugin that allows for easy navigation of a file tree.
 
-Place this folder in `~/.config/micro/plugins/` and restart micro:
-> git clone https://github.com/NicolaiSoeborg/filemanager-plugin.git ~/.config/micro/plugins/filemanager
+To install, simply run `plugin install filemanager` and restart Micro.
 
 Now it will be possible to open a navigation panel by running 
 the command `tree` (<kbd>Ctrl</kbd> + <kbd>E</kbd>) or creating
