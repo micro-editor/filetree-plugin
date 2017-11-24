@@ -2,7 +2,6 @@ VERSION = "2.1.0"
 
 treeView = nil
 cwd = WorkingDirectory()
-driveLetter = "C:\\"
 isWin = (OS == "windows")
 
 -- Uncomment to enable debugging
@@ -117,20 +116,21 @@ function preDelete(view)
         if debug == true then messenger:AddLog("***** preDelete() *****") end
         local selected = getSelection()
         if selected == ".." then return false end
-        local type, command
+        
+        local type = "file"
         if isDir(selected) then
             type = "dir"
-            command = isWin and "del /S /Q" or "rm -r"
-        else
-            type = "file"
-            command = isWin and "del" or "rm -I"
         end
-        command = command .. " " .. (isWin and driveLetter or "") .. JoinPaths(cwd, selected)
 
-        local yes, cancel = messenger:YesNoPrompt("Do you want to delete " .. type .. " '" .. selected .. "'? ")
+        -- Use the full path instead of relative.
+        selected = JoinPaths(cwd, selected)
+        
+        local yes, cancel = messenger:YesNoPrompt("Do you want to delete the " .. type .. " '" .. selected .. "'? ")
         if not cancel and yes then
-            os.execute(command)
-            refreshTree()
+          -- Use Go's os.Remove to delete the file
+          local go_os = import("os")
+          go_os.Remove(selected)
+          refreshTree()
         end
         -- Clears messenger:
         messenger:Reset()
@@ -153,7 +153,6 @@ function preInsertNewline(view)
             refreshTree()
         else  -- open file in new vertical view
             local filename = JoinPaths(cwd, selected)
-            if isWin then filename = driveLetter .. filename end
             CurView():VSplitIndex(NewBuffer("", filename), 1)
             CurView():ReOpen()
             tabs[curTab+1]:Resize()
@@ -175,40 +174,55 @@ function preQuitAll(view) treeView.Buf.IsModified = false end
 
 -- scanDir will scan contents of the directory passed.
 function scanDir(directory)
-    debug("***** scanDir(directory) ---> ",directory)
-    local i, list, proc = 3, {}, nil
-    list[1] = (isWin and driveLetter or "") .. cwd  -- current directory working.
-    list[2] = ".."  -- used for going up a level in directory.
-    if isWin then  -- if windows
-        proc = io.popen('dir /a /b "'..directory..'"')
-    else           -- linux or unix system
-        proc = io.popen('ls -Ap "'..directory..'"')
+  messenger:AddLog("***** scanDir(directory) ---> ", directory)
+
+  local list = {[1] = cwd, [2] = ".."}
+
+  local go_ioutil = import("ioutil")
+  -- Gets a list of all the files in the current dir
+  local readout = go_ioutil.ReadDir(directory)
+
+  if readout == nil then
+    messenger:Error("Error reading directory: ", directory)
+  else
+    local readout_name = ""
+    -- Loop through all the files/directories in current dir
+    for i = 1, #readout do
+      -- Save the current dir/file name
+      readout_name = readout[i]:Name()
+      -- Check if the current file is a dir
+      if isDir(readout_name) then
+        -- Add on a slash to signify the listing is a directory
+        -- Shouldn't cause issues on Windows, as it lets you use either slash type
+        readout_name = readout_name .. "/"
+      end
+      -- Actually add the file/dir to the list to be displayed
+      list[i + 2] = readout_name
     end
-    -- load filenames to a list
-    for filename in proc:lines() do
-        list[i] = filename
-        i = i + 1
-    end
-    proc:close()
-    return list
+  end
+
+  return list
 end
 
 -- isDir checks if the path passed is a directory.
 -- return true if it is a directory else false if it is not a directory.
 function isDir(path)
-    debug("***** isDir(path) ---> ",path)
-    local dir, proc = false, nil
-    if isWin then
-        proc = io.popen('IF EXIST ' .. driveLetter .. JoinPaths(cwd, path) .. '/* (ECHO d) ELSE (ECHO -)')
-    else
-        proc = io.popen('ls -adl "' .. JoinPaths(cwd, path) .. '"')
-    end
-    if proc:read(1) == "d" then
-        dir = true
-    end
-    proc:close()
-    debug("***** isDir return ",dir)
-    return dir
+  debug("***** isDir(path) ---> ", path)
+
+  local go_os = import("os")
+
+  local check_path = JoinPaths(cwd, path)
+
+  -- Returns a FileInfo on the current file/path
+  local file_info = go_os.Stat(check_path)
+
+  if file_info ~= nil then
+    -- Returns the true/false of if the file is a directory
+    return file_info:IsDir()
+  else
+    messenger:AddLog("isDir() failed, returning nil")
+    return nil
+  end
 end
 
 -- micro editor commands
