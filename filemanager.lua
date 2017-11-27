@@ -60,8 +60,13 @@ end
 function refreshTree()
     debug("***** refreshTree() *****")
     treeView.Buf:remove(treeView.Buf:Start(), treeView.Buf:End())
+    -- get current directory list
     local list = table.concat(scanDir(cwd), "\n ")
     treeView.Buf:Insert(Loc(0,0),list)
+    -- make sure view is at the top for selecting
+    treeView:CursorStart(false)
+    treeView:Relocate()
+    treeView:CursorDown(true)
 end
 
 -- returns currently selected line in treeView
