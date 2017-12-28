@@ -1,4 +1,4 @@
-VERSION = "2.1.1"
+VERSION = "3.0.0"
 
 -- Clear out all stuff in Micro's messenger
 local function clear_messenger()
