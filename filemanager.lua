@@ -1098,14 +1098,15 @@ function onFindPrevious(view)
 	selectline_if_tree(view)
 end
 
---[[ Cd doesn't seem to actually have a callback
 -- Update the current dir when using "cd"
-function onCd(view)
-	if view == tree_view then
-		update_current_dir(WorkingDirectory())
+function onCommandMode(view)
+	local new_dir = WorkingDirectory()
+	-- Only do anything if the tree is open, and they didn't cd to nothing
+	if tree_view ~= nil and new_dir ~= current_dir then
+		update_current_dir(new_dir)
 	end
 end
---]]
+
 ------------------------------------------------------------------
 -- Fail a bunch of useless actions
 -- Some of these need to be removed (read-only makes them useless)
