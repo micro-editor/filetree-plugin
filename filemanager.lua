@@ -1109,7 +1109,7 @@ end
 
 ------------------------------------------------------------------
 -- Fail a bunch of useless actions
--- Some of these need to be removed (read-only makes them useless)
+-- Some of these need to be removed (read-only makes some useless)
 ------------------------------------------------------------------
 
 function preStartOfLine(view)
@@ -1231,13 +1231,13 @@ end
 -- Open/close the tree view
 MakeCommand("tree", "filemanager.toggle_tree", 0)
 -- Rename the file/dir under the cursor
-MakeCommand("rename", "filemanager.rename_at_cursor")
+MakeCommand("rename", "filemanager.rename_at_cursor", 0)
 -- Create a new file
-MakeCommand("touch", "filemanager.new_file")
+MakeCommand("touch", "filemanager.new_file", 0)
 -- Create a new dir
-MakeCommand("mkdir", "filemanager.new_dir")
+MakeCommand("mkdir", "filemanager.new_dir", 0)
 -- Delete a file/dir, and anything contained in it if it's a dir
-MakeCommand("rm", "filemanager.prompt_delete_at_cursor")
+MakeCommand("rm", "filemanager.prompt_delete_at_cursor", 0)
 -- Adds colors to the ".." and any dir's in the tree view via syntax highlighting
 -- TODO: Change it to work with git, based on untracked/changed/added/whatever
 AddRuntimeFile("filemanager", "syntax", "syntax.yaml")
