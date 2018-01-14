@@ -1,5 +1,15 @@
 VERSION = "3.0.0"
 
+-- Let the user disable showing of dotfiles like ".editorconfig" or ".DS_STORE"
+if GetOption("filemanager-showdotfiles") == nil then
+	AddOption("filemanager-showdotfiles", true)
+end
+
+-- Let the user disable showing files ignored by the VCS (i.e. gitignored)
+if GetOption("filemanager-showignored") == nil then
+	AddOption("filemanager-showignored", true)
+end
+
 -- Clear out all stuff in Micro's messenger
 local function clear_messenger()
 	messenger:Reset()
@@ -62,31 +72,42 @@ local function is_dir(path)
 	end
 end
 
--- Structures the output of the scanned directory content to be used in the scanlist table
--- This is useful for both initial creation of the tree, and when nesting with uncompress_target()
-local function get_scanlist(dir, ownership, indent_n)
-	local golib_ioutil = import("ioutil")
-	-- Gets a list of all the files in the current dir
-	local dir_scan, scan_error = golib_ioutil.ReadDir(dir)
+-- Runs the command and returns the readout/printout
+local function get_popen_readout(cmd)
+	local process = io.popen(cmd)
+	local readout = process:read("*a")
+	process:close()
+	return readout
+end
 
-	if dir_scan == nil then
-		-- tostring because Error doesn't seem to support the comma/interface{} thing
-		messenger:Error("Error scanning dir: ", scan_error)
-		return nil
-	else
-		local dirmsg, full_path
-		local results = {}
-
-		-- Loop through all the files/directories in current dir
-		for i = 1, #dir_scan do
-			-- Save the current dir/file name with the absolute path
-			full_path = JoinPaths(dir, dir_scan[i]:Name())
-			-- Use "+" for dir's, "" for files
-			dirmsg = (is_dir(full_path) and "+" or "")
-			results[i] = new_listobj(full_path, dirmsg, ownership, indent_n)
+-- Returns a list of files (in the target dir) that are ignored by the VCS system (if exists)
+-- aka this returns a list of gitignored files (but for whatever VCS is found)
+local function get_ignored_files(tar_dir)
+	-- True/false if the target dir returns a non-fatal error when checked with 'git status'
+	local function has_git()
+		-- io.popen readout returns an empty string if it fails
+		if get_popen_readout('git -C "' .. tar_dir .. '" status') == "" then
+			return false
+		else
+			return true
 		end
-		return results
 	end
+	local readout_results = {}
+	-- TODO: Support more than just Git, such as Mercurial or SVN
+	if has_git() then
+		-- If the dir is a git dir, get all ignored in the dir
+		local git_ls_results =
+			get_popen_readout('git -C "' .. tar_dir .. '" ls-files . --ignored --exclude-standard --others --directory')
+		-- Cut off the newline that is at the end of each result
+		for split_results in string.gmatch(git_ls_results, "([^\r\n]+)") do
+			-- git ls-files adds a trailing slash if it's a dir, so we remove it (if it is one)
+			readout_results[#readout_results + 1] =
+				(string.sub(split_results, -1) == "/" and string.sub(split_results, 1, -2) or split_results)
+		end
+	end
+
+	-- Make sure we return a table
+	return readout_results
 end
 
 -- Returns the basename of a path (aka a name without leading path)
@@ -99,6 +120,95 @@ local function get_basename(path)
 		local golib_path = import("path")
 		return golib_path.Base(path)
 	end
+end
+
+-- Returns true/false if the file is a dotfile
+local function is_dotfile(file_name)
+	-- Check if the filename starts with a dot
+	if string.sub(file_name, 1, 1) == "." then
+		return true
+	else
+		return false
+	end
+end
+
+-- Structures the output of the scanned directory content to be used in the scanlist table
+-- This is useful for both initial creation of the tree, and when nesting with uncompress_target()
+local function get_scanlist(dir, ownership, indent_n)
+	local golib_ioutil = import("ioutil")
+	-- Gets a list of all the files in the current dir
+	local dir_scan, scan_error = golib_ioutil.ReadDir(dir)
+
+	-- dir_scan will be nil if the directory is read-protected (no permissions)
+	if dir_scan == nil then
+		messenger:Error("Error scanning dir: ", scan_error)
+		return nil
+	end
+
+	-- The list of VCS-ignored files (if any)
+	local ignored_files = get_ignored_files(dir)
+	-- True/false if the file is an ignored file
+	local function is_ignored_file(filename)
+		for i = 1, #ignored_files do
+			if ignored_files[i] == filename then
+				return true
+			end
+		end
+		return false
+	end
+
+	-- The list of files to be returned (and eventually put in the view)
+	local results = {}
+
+	local function get_results_object(file_name)
+		local abs_path = JoinPaths(dir, file_name)
+		-- Use "+" for dir's, "" for files
+		local dirmsg = (is_dir(abs_path) and "+" or "")
+		return new_listobj(abs_path, dirmsg, ownership, indent_n)
+	end
+
+	-- Save so we don't have to rerun GetOption a bunch
+	local show_dotfiles = GetOption("filemanager-showdotfiles")
+	local show_ignored = GetOption("filemanager-showignored")
+
+	-- Hold the current scan's filename in most of the loops below
+	local filename
+
+	-- Splitting the loops for speed, so we don't run an unnecessary if every pass
+	if not show_dotfiles and not show_ignored then
+		-- Don't show dotfiles or ignored
+		for i = 1, #dir_scan do
+			filename = dir_scan[i]:Name()
+			-- Check if it's a hidden file
+			if not is_dotfile(filename) and not is_ignored_file(filename) then
+				-- Since we skip indicies of dotfiles, don't use i here or we add nil values
+				results[#results + 1] = get_results_object(filename)
+			end
+		end
+	elseif show_dotfiles and not show_ignored then
+		-- Show dotfiles but not ignored
+		for i = 1, #dir_scan do
+			filename = dir_scan[i]:Name()
+			if not is_ignored_file(filename) then
+				results[#results + 1] = get_results_object(filename)
+			end
+		end
+	elseif not show_dotfiles and show_ignored then
+		-- Show ignored but not dotfiles
+		for i = 1, #dir_scan do
+			filename = dir_scan[i]:Name()
+			if not is_dotfile(filename) then
+				results[#results + 1] = get_results_object(filename)
+			end
+		end
+	else
+		-- Show dotfiles and ignored (aka everything)
+		for i = 1, #dir_scan do
+			results[i] = get_results_object(dir_scan[i]:Name())
+		end
+	end
+	-- Return the list of scanned files
+	return results
 end
 
 -- A short "get y" for when acting on the scanlist
