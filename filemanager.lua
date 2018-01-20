@@ -425,7 +425,7 @@ local function compress_target(y, delete_y)
 				-- Reduce everything's ownership by 1 after y
 				for x = i + 1, #scanlist do
 					-- Don't touch root file/dirs
-					if scanlist[x].owner > 0 then
+					if scanlist[x].owner > y then
 						-- Minus 1 since we're just deleting y
 						scanlist[x]:decrease_owner(1)
 					end
