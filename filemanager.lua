@@ -1208,11 +1208,18 @@ function onFindPrevious(view)
 	selectline_if_tree(view)
 end
 
+-- NOTE: This is a workaround for "cd" not having its own callback
+local precmd_dir
+
+function preCommandMode(view)
+	precmd_dir = WorkingDirectory()
+end
+
 -- Update the current dir when using "cd"
 function onCommandMode(view)
 	local new_dir = WorkingDirectory()
 	-- Only do anything if the tree is open, and they didn't cd to nothing
-	if tree_view ~= nil and new_dir ~= current_dir then
+	if tree_view ~= nil and new_dir ~= precmd_dir and new_dir ~= current_dir then
 		update_current_dir(new_dir)
 	end
 end

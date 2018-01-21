@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Fixed
 
 * A bug with the `rm` command that caused weird, undefined behaviour to contents within the same dir as the file/dir deleted.
+* Issue [#24](https://github.com/NicolaiSoeborg/filemanager-plugin/issues/24)
 
 ## [3.0.0] - 2017-01-10
 
