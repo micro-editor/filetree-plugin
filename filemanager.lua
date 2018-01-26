@@ -145,18 +145,6 @@ local function get_scanlist(dir, ownership, indent_n)
 		return nil
 	end
 
-	-- The list of VCS-ignored files (if any)
-	local ignored_files = get_ignored_files(dir)
-	-- True/false if the file is an ignored file
-	local function is_ignored_file(filename)
-		for i = 1, #ignored_files do
-			if ignored_files[i] == filename then
-				return true
-			end
-		end
-		return false
-	end
-
 	-- The list of files to be returned (and eventually put in the view)
 	local results = {}
 
@@ -170,6 +158,19 @@ local function get_scanlist(dir, ownership, indent_n)
 	-- Save so we don't have to rerun GetOption a bunch
 	local show_dotfiles = GetOption("filemanager-showdotfiles")
 	local show_ignored = GetOption("filemanager-showignored")
+
+	-- The list of VCS-ignored files (if any)
+	-- Only bother gettig ignored files if we're not showing ignored
+	local ignored_files = (not show_ignored and get_ignored_files(dir) or {})
+	-- True/false if the file is an ignored file
+	local function is_ignored_file(filename)
+		for i = 1, #ignored_files do
+			if ignored_files[i] == filename then
+				return true
+			end
+		end
+		return false
+	end
 
 	-- Hold the current scan's filename in most of the loops below
 	local filename
