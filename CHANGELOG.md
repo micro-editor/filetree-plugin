@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+## [3.1.0] - 2018-01-30
+
 ### Added
 
 * The ability to hide dotfiles using the `filemanager-showdotfiles` option.
@@ -17,7 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 * A bug with the `rm` command that caused weird, undefined behaviour to contents within the same dir as the file/dir deleted.
 * Issue [#24](https://github.com/NicolaiSoeborg/filemanager-plugin/issues/24)
 
-## [3.0.0] - 2017-01-10
+## [3.0.0] - 2018-01-10
 
 ### Fixed
 
@@ -44,5 +46,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 * The ability to use a lot of keybindings that would otherwise mess with the view, and have no benifit.
 * The pointless `.gitignore` file.
 
-[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.0.0...HEAD
+[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v2.1.1...v3.0.0
