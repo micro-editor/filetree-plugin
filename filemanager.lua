@@ -545,7 +545,7 @@ local function try_open_at_y(y)
 			-- If it's a file, then open it
 			messenger:Message("Filemanager opened ", scanlist[y].abspath)
 			-- Opens the absolute path in new vertical view
-			CurView():VSplitIndex(NewBuffer("", scanlist[y].abspath), 1)
+			CurView():VSplitIndex(NewBufferFromFile(scanlist[y].abspath), 1)
 			-- Refreshes it to be visible
 			CurView().Buf:ReOpen()
 			-- Resizes all views after opening a file
@@ -1158,9 +1158,14 @@ function preCursorRight(view)
 	end
 end
 
+-- Workaround for tab getting inserted into opened files
+-- Ref https://github.com/zyedidia/micro/issues/992
+local tab_pressed = false
+
 -- Tab
 function preIndentSelection(view)
 	if view == tree_view then
+		tab_pressed = true
 		-- Open the file
 		-- Using tab instead of enter, since enter won't work with Readonly
 		try_open_at_y(tree_view.Buf.Cursor.Loc.Y)
@@ -1298,8 +1303,13 @@ function preDeleteWordRight(view)
 	return false_if_tree(view)
 end
 
-function preIndentTab(view)
-	return false_if_tree(view)
+-- Workaround for tab getting inserted into opened files
+-- Ref https://github.com/zyedidia/micro/issues/992
+function preInsertTab(view)
+	if tab_pressed then
+		tab_pressed = false
+		return false
+	end
 end
 
 function preOutdentSelection(view)
