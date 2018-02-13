@@ -10,6 +10,11 @@ if GetOption("filemanager-showignored") == nil then
 	AddOption("filemanager-showignored", true)
 end
 
+-- Let the user disable going to parent directory via left arrow key when file selected (not directory)
+if GetOption("filemanager-compressparent") == nil then
+	AddOption("filemanager-compressparent", true)
+end
+
 -- Clear out all stuff in Micro's messenger
 local function clear_messenger()
 	messenger:Reset()
@@ -354,6 +359,7 @@ local function compress_target(y, delete_y)
 			return
 		end
 	end
+	local compress_parent = GetOption("filemanager-compressparent")
 	-- Check if the target is a dir, since files don't have anything to compress
 	-- Also make sure it's actually an uncompressed dir by checking the gutter message
 	if scanlist[y].dirmsg == "-" then
@@ -415,8 +421,8 @@ local function compress_target(y, delete_y)
 			-- Update the dir message
 			scanlist[y].dirmsg = "+"
 		end
-	else
-            goto_parent_dir()
+	elseif compress_parent then
+	    goto_parent_dir()
 	end
 
 	-- Put outside check above because we call this to delete targets as well
