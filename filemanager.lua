@@ -976,13 +976,10 @@ function goto_parent_dir()
 
 	local cur_y = get_safe_y()
 	-- Check if the cursor is even in a valid location for jumping to the owner
-	if cur_y > 1 then
-		-- Check if the current y is a root file
-		if scanlist[cur_y].owner > 0 then
-			-- Jump to its parent (the ownership)
-			tree_view.Buf.Cursor:UpN(cur_y - scanlist[cur_y].owner)
-			select_line()
-		end
+	if cur_y > 0 then
+		-- Jump to its parent (the ownership)
+		tree_view.Buf.Cursor:UpN(cur_y - scanlist[cur_y].owner)
+		select_line()
 	end
 end
 
