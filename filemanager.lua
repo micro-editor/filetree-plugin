@@ -415,6 +415,8 @@ local function compress_target(y, delete_y)
 			-- Update the dir message
 			scanlist[y].dirmsg = "+"
 		end
+	else
+            goto_parent_dir()
 	end
 
 	-- Put outside check above because we call this to delete targets as well
