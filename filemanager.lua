@@ -1179,6 +1179,14 @@ function preIndentSelection(view)
 	end
 end
 
+-- Workaround for tab getting inserted into opened files
+-- Ref https://github.com/zyedidia/micro/issues/992
+function preInsertTab(view)
+	if tab_pressed then
+		tab_pressed = false
+		return false
+	end
+end
 -- CtrlL
 function onJumpLine(view)
 	-- Highlight the line after jumping to it
@@ -1308,14 +1316,6 @@ function preDeleteWordRight(view)
 	return false_if_tree(view)
 end
 
--- Workaround for tab getting inserted into opened files
--- Ref https://github.com/zyedidia/micro/issues/992
-function preInsertTab(view)
-	if tab_pressed then
-		tab_pressed = false
-		return false
-	end
-end
 
 function preOutdentSelection(view)
 	return false_if_tree(view)
