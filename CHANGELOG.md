@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+## [3.2.0] - 2018-02-15
+
 ### Added
 
 * The ability to go to parent directory with left arrow (when not minimizing). Thanks @avently
@@ -66,7 +68,8 @@ Ref https://github.com/zyedidia/micro/issues/992 for both of these fixes.
 * The ability to use a lot of keybindings that would otherwise mess with the view, and have no benifit.
 * The pointless `.gitignore` file.
 
-[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.2...HEAD
+[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.2...v3.2.0
 [3.1.2]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.0.0...v3.1.0

@@ -21,9 +21,9 @@
 				}
 			},
 			{
-				"Version": "3.1.2",
+				"Version": "3.2.0",
 				"Url":
-					"https://github.com/NicolaiSoeborg/filemanager-plugin/archive/v3.1.2.zip",
+					"https://github.com/NicolaiSoeborg/filemanager-plugin/archive/v3.2.0.zip",
 				"Require": {
 					"micro": ">=1.4.1"
 				}
