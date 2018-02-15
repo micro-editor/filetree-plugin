@@ -418,7 +418,7 @@ local function compress_target(y, delete_y)
 			-- Update the dir message
 			scanlist[y].dirmsg = "+"
 		end
-	elseif GetOption("filemanager-compressparent") then
+	elseif GetOption("filemanager-compressparent") and not delete_y then
 		goto_parent_dir()
 		-- Prevent a pointless refresh of the view
 		return
