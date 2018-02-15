@@ -15,7 +15,7 @@ All directories have a `/` added to the end of it, and are syntax-highlighted as
 If it hasn't been uncompressed, there will be a `+` to the left of it. If it has been uncompressed, it will be a `-` instead.
 
 If you want to disable dotfiles from being shown, run `set filemanager-showdotfiles false` in Micro, then close & open the tree.\
-If you want to disable VCS-ignored (aka `.gitignore`) files from being shown, run `set filemanager-showignored false` in Micro, then close & open the tree.
+If you want to disable VCS-ignored (aka `.gitignore`) files from being shown, run `set filemanager-showignored false` in Micro, then close & open the tree.\
 If you don't want to go to a parent directory from any selected file via left arrow key (filemanager.compress_at_cursor keybinding), run `set filemanager-compressparent false`
 
 **NOTE:** If you change files without using the plugin, it can't know what you did. The only fix is to close and open the tree.

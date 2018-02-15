@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+
+* The ability to go to parent directory with left arrow (when not minimizing). Thanks @avently
+* The ability to jump to the `..` as a "parent directory". Thanks @avently
+
 ## [3.1.2] - 2018-02-07
 
 ### Fixed

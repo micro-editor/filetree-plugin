@@ -359,7 +359,6 @@ local function compress_target(y, delete_y)
 			return
 		end
 	end
-	local compress_parent = GetOption("filemanager-compressparent")
 	-- Check if the target is a dir, since files don't have anything to compress
 	-- Also make sure it's actually an uncompressed dir by checking the gutter message
 	if scanlist[y].dirmsg == "-" then
@@ -421,8 +420,10 @@ local function compress_target(y, delete_y)
 			-- Update the dir message
 			scanlist[y].dirmsg = "+"
 		end
-	elseif compress_parent then
-	    goto_parent_dir()
+	elseif GetOption("filemanager-compressparent") then
+		goto_parent_dir()
+		-- Prevent a pointless refresh of the view
+		return
 	end
 
 	-- Put outside check above because we call this to delete targets as well
