@@ -355,9 +355,7 @@ end
 local function compress_target(y, delete_y)
 	-- Can't compress the top stuff, or if there's nothing there, so exit early
 	if y == 0 or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 	-- Check if the target is a dir, since files don't have anything to compress
 	-- Also make sure it's actually an uncompressed dir by checking the gutter message
@@ -465,9 +463,7 @@ function prompt_delete_at_cursor()
 	if y == 0 or scanlist_is_empty() then
 		messenger:Error("You can't delete that")
 		-- Exit early if there's nothing to delete
-		do
-			return
-		end
+		return
 	end
 
 	local yes_del,
@@ -569,9 +565,7 @@ end
 local function uncompress_target(y)
 	-- Exit early if on the top 3 non-list items
 	if y == 0 or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 	-- Only uncompress if it's a dir and it's not already uncompressed
 	if scanlist[y].dirmsg == "+" then
@@ -648,17 +642,13 @@ end
 function rename_at_cursor(new_name)
 	if CurView() ~= tree_view then
 		messenger:Message("Rename only works with the cursor in the tree!")
-		do
-			return
-		end
+		return
 	end
 
 	-- Safety check they actually passed a name
 	if new_name == nil then
 		messenger:Error('When using "rename" you need to input a new name')
-		do
-			return
-		end
+		return
 	end
 
 	-- +1 since Go uses zero-based indices
@@ -667,9 +657,7 @@ function rename_at_cursor(new_name)
 	if y == 0 then
 		-- Error since they tried to rename the top stuff
 		messenger:Message("You can't rename that!")
-		do
-			return
-		end
+		return
 	end
 
 	-- The old file/dir's path
@@ -688,9 +676,7 @@ function rename_at_cursor(new_name)
 	-- Check if the rename worked
 	if not path_exists(new_path) then
 		messenger:Error("Path doesn't exist after rename!")
-		do
-			return
-		end
+		return
 	end
 
 	-- NOTE: doesn't alphabetically sort after refresh, but it probably should
@@ -704,17 +690,13 @@ end
 local function create_filedir(filedir_name, make_dir)
 	if CurView() ~= tree_view then
 		messenger:Message("You can't create a file/dir if your cursor isn't in the tree!")
-		do
-			return
-		end
+		return
 	end
 
 	-- Safety check they passed a name
 	if filedir_name == nil then
 		messenger:Error('You need to input a name when using "touch" or "mkdir"!')
-		do
-			return
-		end
+		return
 	end
 
 	-- The target they're trying to create on top of/in/at/whatever
@@ -742,9 +724,7 @@ local function create_filedir(filedir_name, make_dir)
 	-- Check if the name is already taken by a file/dir
 	if path_exists(filedir_path) then
 		messenger:Error("You can't create a file/dir with a pre-existing name")
-		do
-			return
-		end
+		return
 	end
 
 	-- Use Go's os package for creating the files
@@ -763,9 +743,8 @@ local function create_filedir(filedir_name, make_dir)
 	-- If the file we tried to make doesn't exist, fail
 	if not path_exists(filedir_path) then
 		messenger:Error("The file/dir creation failed")
-		do
-			return
-		end
+
+		return
 	end
 
 	-- Creates a sort of default object, to be modified below
@@ -784,9 +763,8 @@ local function create_filedir(filedir_name, make_dir)
 		-- Only actually add the object to the list if it's not created on an uncompressed folder
 		if scanlist[y].dirmsg == "+" then
 			-- Exit early, since it was created into an uncompressed folder
-			do
-				return
-			end
+
+			return
 		elseif scanlist[y].dirmsg == "-" then
 			-- Check if created on top of an uncompressed folder
 			-- Change ownership to the folder it was created on top of..
@@ -919,9 +897,7 @@ end
 -- Not local so it can be bound
 function goto_prev_dir()
 	if CurView() ~= tree_view or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 
 	local cur_y = get_safe_y()
@@ -945,9 +921,7 @@ end
 -- Not local so it can be bound
 function goto_next_dir()
 	if CurView() ~= tree_view or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 
 	local cur_y = get_safe_y()
@@ -976,9 +950,7 @@ end
 -- Not local so it can be keybound
 function goto_parent_dir()
 	if CurView() ~= tree_view or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 
 	local cur_y = get_safe_y()
@@ -992,9 +964,7 @@ end
 
 function try_open_at_cursor()
 	if CurView() ~= tree_view or scanlist_is_empty() then
-		do
-			return
-		end
+		return
 	end
 
 	try_open_at_y(tree_view.Buf.Cursor.Loc.Y)
@@ -1316,7 +1286,6 @@ end
 function preDeleteWordRight(view)
 	return false_if_tree(view)
 end
-
 
 function preOutdentSelection(view)
 	return false_if_tree(view)
