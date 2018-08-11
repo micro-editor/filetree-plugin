@@ -15,6 +15,11 @@ if GetOption("filemanager-compressparent") == nil then
 	AddOption("filemanager-compressparent", true)
 end
 
+-- Let the user choose to list sub-folders first when listing the contents of a folder
+if GetOption("filemanager-foldersfirst") == nil then
+	AddOption("filemanager-foldersfirst", true)
+end
+
 -- Clear out all stuff in Micro's messenger
 local function clear_messenger()
 	messenger:Reset()
@@ -152,6 +157,7 @@ local function get_scanlist(dir, ownership, indent_n)
 
 	-- The list of files to be returned (and eventually put in the view)
 	local results = {}
+	local files = {}
 
 	local function get_results_object(file_name)
 		local abs_path = JoinPaths(dir, file_name)
@@ -163,6 +169,7 @@ local function get_scanlist(dir, ownership, indent_n)
 	-- Save so we don't have to rerun GetOption a bunch
 	local show_dotfiles = GetOption("filemanager-showdotfiles")
 	local show_ignored = GetOption("filemanager-showignored")
+	local folders_first = GetOption("filemanager-foldersfirst")
 
 	-- The list of VCS-ignored files (if any)
 	-- Only bother gettig ignored files if we're not showing ignored
@@ -183,34 +190,104 @@ local function get_scanlist(dir, ownership, indent_n)
 	-- Splitting the loops for speed, so we don't run an unnecessary if every pass
 	if not show_dotfiles and not show_ignored then
 		-- Don't show dotfiles or ignored
-		for i = 1, #dir_scan do
-			filename = dir_scan[i]:Name()
-			-- Check if it's a hidden file
-			if not is_dotfile(filename) and not is_ignored_file(filename) then
-				-- Since we skip indicies of dotfiles, don't use i here or we add nil values
-				results[#results + 1] = get_results_object(filename)
+		if folders_first then
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if not is_dotfile(filename) and not is_ignored_file(filename) then
+					if is_dir(dir .. "/" .. filename) then
+						results[#results + 1] = get_results_object(filename)
+					else
+						files[#files + 1] = get_results_object(filename)
+					end
+				end
+			end
+			if #files > 0 then
+				for i = 0, #files do
+					results[#results + 1] = files[i]
+				end
+			end
+		else
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				-- Check if it's a hidden file
+				if not is_dotfile(filename) and not is_ignored_file(filename) then
+					-- Since we skip indicies of dotfiles, don't use i here or we add nil values
+					results[#results + 1] = get_results_object(filename)
+				end
 			end
 		end
 	elseif show_dotfiles and not show_ignored then
 		-- Show dotfiles but not ignored
-		for i = 1, #dir_scan do
-			filename = dir_scan[i]:Name()
-			if not is_ignored_file(filename) then
-				results[#results + 1] = get_results_object(filename)
+		if folders_first then
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if not is_ignored_file(filename) then
+					if is_dir(dir .. "/" .. filename) then
+						results[#results + 1] = get_results_object(filename)
+					else
+						files[#files + 1] = get_results_object(filename)
+					end
+				end
+			end
+			if #files > 0 then
+				for i = 0, #files do
+					results[#results + 1] = files[i]
+				end
+			end
+		else
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if not is_ignored_file(filename) then
+					results[#results + 1] = get_results_object(filename)
+				end
 			end
 		end
 	elseif not show_dotfiles and show_ignored then
 		-- Show ignored but not dotfiles
-		for i = 1, #dir_scan do
-			filename = dir_scan[i]:Name()
-			if not is_dotfile(filename) then
-				results[#results + 1] = get_results_object(filename)
+		if folders_first then
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if not is_dotfile(filename) then
+					if is_dir(dir .. "/" .. filename) then
+						results[#results + 1] = get_results_object(filename)
+					else
+						files[#files + 1] = get_results_object(filename)
+					end
+				end
+			end
+			if #files > 0 then
+				for i = 0, #files do
+					results[#results + 1] = files[i]
+				end
+			end
+		else
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if not is_dotfile(filename) then
+					results[#results + 1] = get_results_object(filename)
+				end
 			end
 		end
 	else
 		-- Show dotfiles and ignored (aka everything)
-		for i = 1, #dir_scan do
-			results[i] = get_results_object(dir_scan[i]:Name())
+		if folders_first then
+			for i = 1, #dir_scan do
+				filename = dir_scan[i]:Name()
+				if is_dir(dir .. "/" .. filename) then
+					results[#results + 1] = get_results_object(filename)
+				else
+					files[#files + 1] = get_results_object(filename)
+				end
+			end
+			if #files > 0 then
+				for i = 0, #files do
+					results[#results + 1] = files[i]
+				end
+			end
+		else
+			for i = 1, #dir_scan do
+				results[i] = get_results_object(dir_scan[i]:Name())
+			end
 		end
 	end
 	-- Return the list of scanned files
