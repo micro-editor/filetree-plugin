@@ -172,7 +172,7 @@ local function get_scanlist(dir, ownership, indent_n)
 	local folders_first = GetOption("filemanager-foldersfirst")
 
 	-- The list of VCS-ignored files (if any)
-	-- Only bother gettig ignored files if we're not showing ignored
+	-- Only bother getting ignored files if we're not showing ignored
 	local ignored_files = (not show_ignored and get_ignored_files(dir) or {})
 	-- True/false if the file is an ignored file
 	local function is_ignored_file(filename)
@@ -187,109 +187,36 @@ local function get_scanlist(dir, ownership, indent_n)
 	-- Hold the current scan's filename in most of the loops below
 	local filename
 
-	-- Splitting the loops for speed, so we don't run an unnecessary if every pass
-	if not show_dotfiles and not show_ignored then
-		-- Don't show dotfiles or ignored
-		if folders_first then
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if not is_dotfile(filename) and not is_ignored_file(filename) then
-					if is_dir(dir .. "/" .. filename) then
-						results[#results + 1] = get_results_object(filename)
-					else
-						files[#files + 1] = get_results_object(filename)
-					end
-				end
-			end
-			if #files > 0 then
-				for i = 0, #files do
-					results[#results + 1] = files[i]
-				end
-			end
-		else
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				-- Check if it's a hidden file
-				if not is_dotfile(filename) and not is_ignored_file(filename) then
-					-- Since we skip indicies of dotfiles, don't use i here or we add nil values
-					results[#results + 1] = get_results_object(filename)
-				end
-			end
+	for i = 1, #dir_scan do
+    	local showfile = true
+		filename = dir_scan[i]:Name()
+		-- If we should not show dotfiles, and this is a dotfile, don't show
+		if not show_dotfiles and is_dotfile(filename) then
+			showfile = false
 		end
-	elseif show_dotfiles and not show_ignored then
-		-- Show dotfiles but not ignored
-		if folders_first then
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if not is_ignored_file(filename) then
-					if is_dir(dir .. "/" .. filename) then
-						results[#results + 1] = get_results_object(filename)
-					else
-						files[#files + 1] = get_results_object(filename)
-					end
-				end
-			end
-			if #files > 0 then
-				for i = 0, #files do
-					results[#results + 1] = files[i]
-				end
-			end
-		else
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if not is_ignored_file(filename) then
-					results[#results + 1] = get_results_object(filename)
-				end
-			end
+		-- If we should not show ignored files, and this is an ignored file, don't show
+		if not show_ignored and is_ignored_file(filename) then
+			showfile = false
 		end
-	elseif not show_dotfiles and show_ignored then
-		-- Show ignored but not dotfiles
-		if folders_first then
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if not is_dotfile(filename) then
-					if is_dir(dir .. "/" .. filename) then
-						results[#results + 1] = get_results_object(filename)
-					else
-						files[#files + 1] = get_results_object(filename)
-					end
-				end
-			end
-			if #files > 0 then
-				for i = 0, #files do
-					results[#results + 1] = files[i]
-				end
-			end
-		else
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if not is_dotfile(filename) then
-					results[#results + 1] = get_results_object(filename)
-				end
-			end
-		end
-	else
-		-- Show dotfiles and ignored (aka everything)
-		if folders_first then
-			for i = 1, #dir_scan do
-				filename = dir_scan[i]:Name()
-				if is_dir(dir .. "/" .. filename) then
-					results[#results + 1] = get_results_object(filename)
-				else
-					files[#files + 1] = get_results_object(filename)
-				end
-			end
-			if #files > 0 then
-				for i = 0, #files do
-					results[#results + 1] = files[i]
-				end
-			end
-		else
-			for i = 1, #dir_scan do
-				results[i] = get_results_object(dir_scan[i]:Name())
+		if showfile then
+		    -- This file is good to show, proceed
+			if folders_first and not is_dir(JoinPaths(dir,filename)) then
+			    -- If folders_first and this is a file, add it to (temporary) files
+				files[#files + 1] = get_results_object(filename)
+			else
+    		    -- Otherwise, add to results
+				results[#results + 1] = get_results_object(filename)
 			end
 		end
 	end
+	if #files > 0 then
+	    -- Append any files to results, now that all folders have been added
+	    -- files will be > 0 only if folders_first and there are files
+		for i = 0, #files do
+			results[#results + 1] = files[i]
+		end
+	end
+
 	-- Return the list of scanned files
 	return results
 end
