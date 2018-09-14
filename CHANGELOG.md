@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+
+- The ability to sort folders above files, thanks to @cbrown1
+
 ## [3.2.0] - 2018-02-15
 
 ### Added

@@ -188,7 +188,7 @@ local function get_scanlist(dir, ownership, indent_n)
 	local filename
 
 	for i = 1, #dir_scan do
-    	local showfile = true
+		local showfile = true
 		filename = dir_scan[i]:Name()
 		-- If we should not show dotfiles, and this is a dotfile, don't show
 		if not show_dotfiles and is_dotfile(filename) then
@@ -199,20 +199,20 @@ local function get_scanlist(dir, ownership, indent_n)
 			showfile = false
 		end
 		if showfile then
-		    -- This file is good to show, proceed
-			if folders_first and not is_dir(JoinPaths(dir,filename)) then
-			    -- If folders_first and this is a file, add it to (temporary) files
+			-- This file is good to show, proceed
+			if folders_first and not is_dir(JoinPaths(dir, filename)) then
+				-- If folders_first and this is a file, add it to (temporary) files
 				files[#files + 1] = get_results_object(filename)
 			else
-    		    -- Otherwise, add to results
+				-- Otherwise, add to results
 				results[#results + 1] = get_results_object(filename)
 			end
 		end
 	end
 	if #files > 0 then
-	    -- Append any files to results, now that all folders have been added
-	    -- files will be > 0 only if folders_first and there are files
-		for i = 0, #files do
+		-- Append any files to results, now that all folders have been added
+		-- files will be > 0 only if folders_first and there are files
+		for i = 1, #files do
 			results[#results + 1] = files[i]
 		end
 	end
@@ -470,8 +470,7 @@ function prompt_delete_at_cursor()
 		return
 	end
 
-	local yes_del,
-		no_del =
+	local yes_del, no_del =
 		messenger:YesNoPrompt(
 		"Do you want to delete the " .. (scanlist[y].dirmsg ~= "" and "dir" or "file") .. ' "' .. scanlist[y].abspath .. '"? '
 	)
