@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - The ability to sort folders above files, thanks to @cbrown1
 
+### Fixed
+
+- The displayed filenames are now correctly only showing their "basename" on Windows
+
 ## [3.2.0] - 2018-02-15
 
 ### Added

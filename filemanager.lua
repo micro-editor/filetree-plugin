@@ -127,7 +127,7 @@ local function get_basename(path)
 		return nil
 	else
 		-- Get Go's path lib for a basename callback
-		local golib_path = import("path")
+		local golib_path = import("filepath")
 		return golib_path.Base(path)
 	end
 end
