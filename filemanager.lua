@@ -20,6 +20,12 @@ if GetOption("filemanager-foldersfirst") == nil then
 	AddOption("filemanager-foldersfirst", true)
 end
 
+-- Lets the user have the filetree auto-open any time Micro is opened
+-- false by default, as it's a rather noticable user-facing change
+if GetOption("filemanager-openonstart") == nil then
+	AddOption("filemanager-openonstart", false)
+end
+
 -- Clear out all stuff in Micro's messenger
 local function clear_messenger()
 	messenger:Reset()
@@ -1345,3 +1351,18 @@ MakeCommand("rm", "filemanager.prompt_delete_at_cursor", 0)
 -- Adds colors to the ".." and any dir's in the tree view via syntax highlighting
 -- TODO: Change it to work with git, based on untracked/changed/added/whatever
 AddRuntimeFile("filemanager", "syntax", "syntax.yaml")
+
+-- NOTE: This must be below the syntax load command or coloring won't work
+-- Just auto-open if the option is enabled
+-- This will run when the plugin first loads
+if GetOption("filemanager-openonstart") == true then
+	-- Check for safety on the off-chance someone's init.lua breaks this
+	if tree_view == nil then
+		open_tree()
+	else
+		-- Log error so they can fix it
+		messenger.AddLog(
+			"Warning: filemanager-openonstart was enabled, but somehow the tree was already open so the option was ignored."
+		)
+	end
+end
