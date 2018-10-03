@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+
+- Add the option to auto-open the file tree when Micro is started
+
+### Changed
+
+- Update README's option's documentation
+
 ## [3.3.1] - 2018-10-03
 
 ### Changed
