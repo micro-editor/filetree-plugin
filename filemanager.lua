@@ -82,32 +82,20 @@ local function is_dir(path)
 	end
 end
 
--- Runs the command and returns the readout/printout
-local function get_popen_readout(cmd)
-	local process = io.popen(cmd)
-	local readout = process:read("*a")
-	process:close()
-	return readout
-end
-
 -- Returns a list of files (in the target dir) that are ignored by the VCS system (if exists)
 -- aka this returns a list of gitignored files (but for whatever VCS is found)
 local function get_ignored_files(tar_dir)
 	-- True/false if the target dir returns a non-fatal error when checked with 'git status'
 	local function has_git()
-		-- io.popen readout returns an empty string if it fails
-		if get_popen_readout('git -C "' .. tar_dir .. '" status') == "" then
-			return false
-		else
-			return true
-		end
+		local git_rp_results = RunShellCommand('git  -C "' .. tar_dir .. '" rev-parse --is-inside-work-tree')
+		return git_rp_results:match("^true%s*$")
 	end
 	local readout_results = {}
 	-- TODO: Support more than just Git, such as Mercurial or SVN
 	if has_git() then
 		-- If the dir is a git dir, get all ignored in the dir
 		local git_ls_results =
-			get_popen_readout('git -C "' .. tar_dir .. '" ls-files . --ignored --exclude-standard --others --directory')
+			RunShellCommand('git -C "' .. tar_dir .. '" ls-files . --ignored --exclude-standard --others --directory')
 		-- Cut off the newline that is at the end of each result
 		for split_results in string.gmatch(git_ls_results, "([^\r\n]+)") do
 			-- git ls-files adds a trailing slash if it's a dir, so we remove it (if it is one)
