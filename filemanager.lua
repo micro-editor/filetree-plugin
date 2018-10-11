@@ -1359,6 +1359,9 @@ if GetOption("filemanager-openonstart") == true then
 	-- Check for safety on the off-chance someone's init.lua breaks this
 	if tree_view == nil then
 		open_tree()
+		-- Puts the cursor back in the empty view that initially spawns
+		-- This is so the cursor isn't sitting in the tree view at startup
+		CurView():NextSplit(false)
 	else
 		-- Log error so they can fix it
 		messenger.AddLog(
