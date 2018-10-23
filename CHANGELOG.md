@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Added
 
-- Add the option to auto-open the file tree when Micro is started
+- Adds the option `filemanager-openonstart` to allow auto-opening the file tree when Micro is started (default OFF)
 
 ### Changed
 
