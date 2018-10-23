@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+## [3.4.0] - 2018-10-22
+
 ### Fixed
 
-- Issues with Lua's `io.popen` on some systems by using Micro's built-in `RunShellCommand` instead, thanks to @scottbilas
+- Issues with Lua's `io.popen` on some systems by using Micro's built-in `RunShellCommand` instead, [thanks to @scottbilas](https://github.com/NicolaiSoeborg/filemanager-plugin/pull/38)
 
 ### Added
 
@@ -96,7 +98,8 @@ Ref https://github.com/zyedidia/micro/issues/992 for both of these fixes.
 - The ability to use a lot of keybindings that would otherwise mess with the view, and have no benifit.
 - The pointless `.gitignore` file.
 
-[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.3.1...HEAD
+[unreleased]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/NicolaiSoeborg/filemanager-plugin/compare/v3.1.2...v3.2.0
