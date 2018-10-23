@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Fixed
+
+- Issues with Lua's `io.popen` on some systems by using Micro's built-in `RunShellCommand` instead, thanks to @scottbilas
+
 ### Added
 
 - Adds the option `filemanager-openonstart` to allow auto-opening the file tree when Micro is started (default OFF)
